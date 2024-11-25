@@ -16,7 +16,7 @@ const App = () => {
     }, []);
 
     const fetchData = () => {
-        axios.get('http://localhost:5000/api/data')
+        axios.get('https://userdatabase-73e2.vercel.app/api/data')
             .then((response) => {
                 setData(response.data);
             })
