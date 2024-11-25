@@ -34,7 +34,7 @@ const App = () => {
         e.preventDefault();
         if (editMode) {
             // Update user
-            axios.put(`http://localhost:5000/api/data/${editId}`, form)
+            axios.put(`https://userdatabase-73e2.vercel.app/api/data/${editId}`, form)
                 .then(() => {
                     fetchData(); // Refresh data
                     setForm({ first_name: '', email: '', mobile_number: '' });
@@ -46,7 +46,7 @@ const App = () => {
                 });
         } else {
             // Add user
-            axios.post('http://localhost:5000/api/data', form)
+            axios.post('https://userdatabase-73e2.vercel.app/api/data', form)
                 .then(() => {
                     fetchData(); // Refresh data
                     setForm({ first_name: '', email: '', mobile_number: '' }); // Clear form
@@ -72,7 +72,7 @@ const App = () => {
 
     const handleDelete = (id) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
-            axios.delete(`http://localhost:5000/api/data/${id}`)
+            axios.delete(`https://userdatabase-73e2.vercel.app/api/data/${id}`)
                 .then(() => {
                     fetchData(); // Refresh data
                 })
