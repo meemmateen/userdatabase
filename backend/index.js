@@ -6,8 +6,19 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+const allowedOrigins = ['https://userdatabase-five.vercel.app', 'http://localhost:3000']; // Add all necessary origins
+
 app.use(cors({
-    origin: 'https://userdatabase-five.vercel.app' // Adjust the origin as needed
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Specify the methods allowed
+    allowedHeaders: ['Content-Type', 'Authorization'],    // Allow necessary headers
+    credentials: true                                     // Include cookies if needed
 }));
 app.use(express.json());
 
