@@ -5,22 +5,24 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Middleware - Apply CORS first
 app.use(cors({
-    origin: 'https://userdatabase-five.vercel.app' // Adjust the origin as needed
+    origin: '*',  // Allow all origins (for testing, use '*' or you can specify a list of allowed origins)
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization']  // Allowed headers (adjust as needed)
 }));
 
+// This line handles preflight OPTIONS requests that some browsers send automatically
+app.options('*', cors());
+
+// JSON middleware
 app.use(express.json());
 
 // MongoDB Connection
 const MONGO_URI = 'mongodb+srv://meemmateen:meemmateen@cluster0.sx3id.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; // Replace with your MongoDB URI
-
 mongoose.connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000 // Adjust timeout as needed
 });
-
 
 // Define a User Schema
 const userSchema = new mongoose.Schema({
@@ -36,7 +38,6 @@ const User = mongoose.model('User', userSchema);
 // Add a user
 app.post('/api/data', async (req, res) => {
     const { first_name, email, mobile_number } = req.body;
-
     try {
         const user = new User({ first_name, email, mobile_number });
         await user.save();
@@ -62,7 +63,6 @@ app.get('/api/data', async (req, res) => {
 app.put('/api/data/:id', async (req, res) => {
     const { id } = req.params;
     const { first_name, email, mobile_number } = req.body;
-
     try {
         const user = await User.findByIdAndUpdate(
             id,
@@ -80,7 +80,6 @@ app.put('/api/data/:id', async (req, res) => {
 // Delete a user by ID
 app.delete('/api/data/:id', async (req, res) => {
     const { id } = req.params;
-
     try {
         const user = await User.findByIdAndDelete(id);
         if (!user) return res.status(404).send('User not found');
