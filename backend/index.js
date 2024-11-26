@@ -7,16 +7,17 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware - Apply CORS with specific origin
 app.use(cors({
-    origin: 'https://userdatabase-five.vercel.app',  // Specify the frontend URL (or use * for any origin, but it's better to specify it for security)
+    origin: 'https://userdatabase-five.vercel.app',  // Specify the frontend URL
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
     allowedHeaders: ['Content-Type', 'Authorization']  // Allow headers
 }));
 
-// Handle preflight requests
+// Handle preflight requests (This should be fine with app.use(cors()))
 app.options('*', cors());
 
 // JSON middleware
 app.use(express.json());
+
 
 // MongoDB Connection
 const MONGO_URI = 'mongodb+srv://meemmateen:meemmateen@cluster0.sx3id.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; // Replace with your MongoDB URI
