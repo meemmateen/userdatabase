@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const BASE_URL = 'https://userdatabase-73e2.vercel.app/api/data';
+
 const App = () => {
     const [data, setData] = useState([]);
     const [form, setForm] = useState({
@@ -16,12 +18,18 @@ const App = () => {
     }, []);
 
     const fetchData = () => {
-        axios.get('https://userdatabase-73e2.vercel.app/api/data')
+        axios.get(BASE_URL)
             .then((response) => {
                 setData(response.data);
             })
             .catch((error) => {
-                console.error('Error fetching data:', error);
+                if (error.response) {
+                    console.error('Server responded with an error:', error.response.data);
+                } else if (error.request) {
+                    console.error('Request made but no response received:', error.request);
+                } else {
+                    console.error('Error setting up request:', error.message);
+                }
             });
     };
 
@@ -34,7 +42,7 @@ const App = () => {
         e.preventDefault();
         if (editMode) {
             // Update user
-            axios.put(`https://userdatabase-73e2.vercel.app/api/data/${editId}`, form)
+            axios.put(`${BASE_URL}/${editId}`, form)
                 .then(() => {
                     fetchData(); // Refresh data
                     setForm({ first_name: '', email: '', mobile_number: '' });
@@ -42,17 +50,29 @@ const App = () => {
                     setEditId(null);
                 })
                 .catch((error) => {
-                    console.error('Error updating data:', error);
+                    if (error.response) {
+                        console.error('Server responded with an error:', error.response.data);
+                    } else if (error.request) {
+                        console.error('Request made but no response received:', error.request);
+                    } else {
+                        console.error('Error setting up request:', error.message);
+                    }
                 });
         } else {
             // Add user
-            axios.post('https://userdatabase-73e2.vercel.app/api/data', form)
+            axios.post(BASE_URL, form)
                 .then(() => {
                     fetchData(); // Refresh data
                     setForm({ first_name: '', email: '', mobile_number: '' }); // Clear form
                 })
                 .catch((error) => {
-                    console.error('Error adding data:', error);
+                    if (error.response) {
+                        console.error('Server responded with an error:', error.response.data);
+                    } else if (error.request) {
+                        console.error('Request made but no response received:', error.request);
+                    } else {
+                        console.error('Error setting up request:', error.message);
+                    }
                 });
         }
     };
@@ -72,12 +92,18 @@ const App = () => {
 
     const handleDelete = (id) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
-            axios.delete(`https://userdatabase-73e2.vercel.app/api/data/${id}`)
+            axios.delete(`${BASE_URL}/${id}`)
                 .then(() => {
                     fetchData(); // Refresh data
                 })
                 .catch((error) => {
-                    console.error('Error deleting data:', error);
+                    if (error.response) {
+                        console.error('Server responded with an error:', error.response.data);
+                    } else if (error.request) {
+                        console.error('Request made but no response received:', error.request);
+                    } else {
+                        console.error('Error setting up request:', error.message);
+                    }
                 });
         }
     };
