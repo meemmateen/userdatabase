@@ -5,14 +5,14 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware - Apply CORS first
+// Middleware - Apply CORS with specific origin
 app.use(cors({
-    origin: '*',  // Allow all origins (for testing, use '*' or you can specify a list of allowed origins)
+    origin: 'https://userdatabase-five.vercel.app',  // Specify the frontend URL (or use * for any origin, but it's better to specify it for security)
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-    allowedHeaders: ['Content-Type', 'Authorization']  // Allowed headers (adjust as needed)
+    allowedHeaders: ['Content-Type', 'Authorization']  // Allow headers
 }));
 
-// This line handles preflight OPTIONS requests that some browsers send automatically
+// Handle preflight requests
 app.options('*', cors());
 
 // JSON middleware
