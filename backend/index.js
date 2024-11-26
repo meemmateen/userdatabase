@@ -6,21 +6,21 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-const allowedOrigins = ['https://userdatabase-five.vercel.app', 'http://localhost:3000']; // Add all necessary origins
-
 app.use(cors({
-    origin: 'https://userdatabase-five.vercel.app', // Allow requests from your frontend
-    methods: 'GET,POST,PUT,DELETE', // Specify allowed methods
-    credentials: true // Allow cookies or authentication headers if needed
+    origin: 'https://userdatabase-five.vercel.app' // Adjust the origin as needed
 }));
+
 app.use(express.json());
 
 // MongoDB Connection
 const MONGO_URI = 'mongodb+srv://meemmateen:meemmateen@cluster0.sx3id.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; // Replace with your MongoDB URI
 
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('Error connecting to MongoDB:', err));
+mongoose.connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000 // Adjust timeout as needed
+});
+
 
 // Define a User Schema
 const userSchema = new mongoose.Schema({
