@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2');
+const mongoose = require('mongoose');
 const cors = require('cors');
 
 const app = express();
@@ -7,87 +7,84 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-    origin: 'https://userdatabase-five.vercel.app' 
+    origin: 'https://userdatabase-five.vercel.app' // Adjust the origin as needed
 }));
 app.use(express.json());
 
-// MySQL Connection
-const db = mysql.createConnection({
-    host: 'localhost', // Replace with your host
-    user: 'root',      // Replace with your database username
-    password: '',      // Replace with your database password
-    database: 'users'  // Replace with your database name
+// MongoDB Connection
+const MONGO_URI = 'mongodb+srv://meemmateen:meemmateen@cluster0.sx3id.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; // Replace with your MongoDB URI
+
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => console.error('Error connecting to MongoDB:', err));
+
+// Define a User Schema
+const userSchema = new mongoose.Schema({
+    first_name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    mobile_number: { type: String, required: true },
+    created_at: { type: Date, default: Date.now }
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-        return;
-    }
-    console.log('Connected to MySQL database');
-});
+// Create a User Model
+const User = mongoose.model('User', userSchema);
 
 // Add a user
-app.post('/api/data', (req, res) => {
+app.post('/api/data', async (req, res) => {
     const { first_name, email, mobile_number } = req.body;
 
-    const sql = 'INSERT INTO users (first_name, email, mobile_number) VALUES (?, ?, ?)';
-    db.query(sql, [first_name, email, mobile_number], (err, result) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Server error');
-            return;
-        }
+    try {
+        const user = new User({ first_name, email, mobile_number });
+        await user.save();
         res.status(201).send('Data added successfully!');
-    });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
 });
 
 // Fetch all users
-app.get('/api/data', (req, res) => {
-    const sql = 'SELECT id, first_name, email, mobile_number, created_at FROM users';
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Server error');
-            return;
-        }
-        res.json(results);
-    });
+app.get('/api/data', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
 });
 
 // Update a user by ID
-app.put('/api/data/:id', (req, res) => {
+app.put('/api/data/:id', async (req, res) => {
     const { id } = req.params;
     const { first_name, email, mobile_number } = req.body;
 
-    const query = `
-        UPDATE users 
-        SET first_name = ?, email = ?, mobile_number = ? 
-        WHERE id = ?
-    `;
-    db.query(query, [first_name, email, mobile_number, id], (err, result) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error updating data');
-        } else {
-            res.send('User updated successfully');
-        }
-    });
+    try {
+        const user = await User.findByIdAndUpdate(
+            id,
+            { first_name, email, mobile_number },
+            { new: true, runValidators: true }
+        );
+        if (!user) return res.status(404).send('User not found');
+        res.send('User updated successfully');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error updating data');
+    }
 });
 
 // Delete a user by ID
-app.delete('/api/data/:id', (req, res) => {
+app.delete('/api/data/:id', async (req, res) => {
     const { id } = req.params;
 
-    const query = `DELETE FROM users WHERE id = ?`;
-    db.query(query, [id], (err, result) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error deleting user');
-        } else {
-            res.send('User deleted successfully');
-        }
-    });
+    try {
+        const user = await User.findByIdAndDelete(id);
+        if (!user) return res.status(404).send('User not found');
+        res.send('User deleted successfully');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error deleting user');
+    }
 });
 
 // Start Server
